@@ -1,0 +1,13 @@
+spring:
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    root: WARN
+    com.udea.bancodigital: INFO
+
+server:
+  error:
+    include-message: never
+    include-stacktrace: never

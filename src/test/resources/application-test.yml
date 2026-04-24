@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:16-alpine:///banco_digital_test
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  flyway:
+    enabled: true
+
+app:
+  security:
+    jwt:
+      secret: test_secret_256bits_replace_in_ci_pipeline_not_for_prod
+      expiration-ms: 3600000
+      refresh-expiration-ms: 86400000
