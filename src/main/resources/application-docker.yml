@@ -1,0 +1,19 @@
+---
+# Docker Profile - No Vault, using environment variables
+spring:
+  config:
+    activate:
+      on-profile: docker
+  cloud:
+    vault:
+      enabled: false
+      config:
+        enabled: false
+    config:
+      enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

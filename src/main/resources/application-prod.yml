@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql:///${DB_NAME:banco_digital_identity}?cloudSqlInstance=${CLOUD_SQL_INSTANCE}&socketFactory=com.google.cloud.sql.postgres.SocketFactory&user=${DB_USERNAME:postgres}&password=${DB_PASSWORD:admin}
+    url: jdbc:postgresql:///${DB_NAME:banco_digital_identity}?cloudSqlInstance=${CLOUD_SQL_INSTANCE}&socketFactory=com.google.cloud.sql.postgres.SocketFactory&user=${DB_USERNAME:auth_user}&password=${DB_PASSWORD:IdentityAuth456!}
   jpa:
     show-sql: false
 
