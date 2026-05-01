@@ -1,4 +1,8 @@
 spring:
+  datasource:
+    # Local development - Identity/Auth user
+    username: auth_user
+    password: ${DB_PASSWORD:IdentityAuth456!}
   jpa:
     show-sql: true
 

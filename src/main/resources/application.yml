@@ -1,6 +1,6 @@
 spring:
   application:
-    name: banco-digital-identity
+    name: identity-service
   profiles:
     active: ${APP_PROFILE:local}
 
@@ -35,6 +35,40 @@ spring:
     serialization:
       write-dates-as-timestamps: false
     default-property-inclusion: non_null
+
+  # Eureka Service Discovery
+  eureka:
+    client:
+      serviceUrl:
+        defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+      registerWithEureka: true
+      fetchRegistry: true
+    instance:
+      instanceId: ${spring.application.name}:${server.port}
+      preferIpAddress: true
+      leaseRenewalIntervalInSeconds: 30
+      leaseExpirationDurationInSeconds: 90
+
+  # Kafka Configuration
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+      group-id: ${spring.application.name}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      properties:
+        spring.json.trusted.packages: com.udea.bancodigital
+
+  # Distributed Tracing
+  zipkin:
+    base-url: ${ZIPKIN_URL:http://localhost:9411/}
+    enabled: true
+  sleuth:
+    sampler:
+      probability: 1.0
 
 server:
   port: ${PORT:${APP_PORT:8081}}
@@ -79,3 +113,25 @@ app:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:4200}
   api:
     version: v1
+
+---
+
+# Vault Profile - Secrets loaded from Vault
+spring:
+  config:
+    activate:
+      on-profile: vault
+  datasource:
+    username: ${vault.datasource.username:postgres}
+    password: ${vault.datasource.password:admin}
+
+app:
+  security:
+    jwt:
+      secret: ${jwt_secret:dev_secret_replace_in_prod_must_be_256bits}
+      expiration-ms: ${jwt_expiration_ms:3600000}
+      refresh-expiration-ms: ${jwt_refresh_expiration_ms:86400000}
+    login:
+      max-failed-attempts: ${login_max_failed_attempts:3}
+      lockout-minutes: ${login_lockout_minutes:15}
+    default-client-password: ${default_client_password:Temp1234!}

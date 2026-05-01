@@ -3,6 +3,7 @@ package com.udea.bancodigital.infrastructure.config;
 import com.udea.bancodigital.auth.infrastructure.config.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -12,6 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.Arrays;
 
 /**
  * Configuración de seguridad.
@@ -24,20 +27,25 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final Environment environment;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, Environment environment) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.environment = environment;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        boolean isDev = Arrays.asList(environment.getActiveProfiles()).contains("dev") ||
+                       Arrays.asList(environment.getActiveProfiles()).contains("local");
+
         http
             .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors.configure(http)) // Permitimos políticas de CORS manejadas globalmente o localmente
+            .cors(cors -> cors.configure(http))
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Swagger / OpenAPI
+                // Swagger / OpenAPI - only in dev/local profiles
                 .requestMatchers(
                     "/swagger-ui/**",
                     "/swagger-ui.html",
