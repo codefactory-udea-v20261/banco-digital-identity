@@ -23,6 +23,14 @@ public interface JwtProviderPort {
      * @return Token JWT generado
      */
     String generateToken(Usuario usuario);
+
+    /**
+     * Genera un token de refresco JWT para un usuario.
+     *
+     * @param usuario Usuario para el cual generar el token
+     * @return Token JWT generado
+     */
+    String generateRefreshToken(Usuario usuario);
     
     /**
      * Valida si un token es válido.

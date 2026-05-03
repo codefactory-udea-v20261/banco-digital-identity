@@ -1,5 +1,6 @@
 package com.udea.bancodigital.auth.application.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginResponseDto {
-    private String token;
+public class RefreshRequestDto {
+    @NotBlank(message = "El token de refresco es obligatorio")
     private String refreshToken;
 }

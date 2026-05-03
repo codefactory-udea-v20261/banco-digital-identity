@@ -3,12 +3,10 @@ package com.udea.bancodigital.auth.domain.model;
 import lombok.Builder;
 import lombok.Value;
 
-import java.util.Set;
-
 @Value
 @Builder
-public class Rol {
+public class Permiso {
     Short id;
     String nombre;
-    Set<Permiso> permisos;
+    String descripcion;
 }

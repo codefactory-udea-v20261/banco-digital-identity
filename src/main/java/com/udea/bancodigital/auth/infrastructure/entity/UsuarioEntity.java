@@ -3,6 +3,7 @@ package com.udea.bancodigital.auth.infrastructure.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -46,6 +47,17 @@ public class UsuarioEntity {
 
     @Column(name = "bloqueado_hasta")
     private OffsetDateTime bloqueadoHasta;
+
+    @Column(name = "bloqueado", nullable = false)
+    @Builder.Default
+    private boolean bloqueado = false;
+
+    @Column(name = "last_failed_at")
+    private LocalDateTime lastFailedAt;
+
+    @Column(name = "failed_attempts", nullable = false)
+    @Builder.Default
+    private Integer failedAttempts = 0;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

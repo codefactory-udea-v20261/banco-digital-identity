@@ -4,12 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginResponseDto {
-    private String token;
-    private String refreshToken;
+public class PasswordValidationResultDto {
+    private boolean valid;
+    private List<String> errors;
+    private int strengthScore;
 }

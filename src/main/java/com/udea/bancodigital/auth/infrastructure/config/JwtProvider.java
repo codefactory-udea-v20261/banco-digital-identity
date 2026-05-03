@@ -1,5 +1,7 @@
 package com.udea.bancodigital.auth.infrastructure.config;
 
+import com.udea.bancodigital.auth.domain.model.Permiso;
+import com.udea.bancodigital.auth.domain.model.Rol;
 import com.udea.bancodigital.auth.domain.model.Usuario;
 import com.udea.bancodigital.auth.domain.port.out.JwtProviderPort;
 import io.jsonwebtoken.Claims;
@@ -11,7 +13,9 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -24,6 +28,9 @@ public class JwtProvider implements JwtProviderPort {
     @Value("${app.security.jwt.expiration-ms}")
     private int jwtExpirationMs;
 
+    @Value("${app.security.jwt.refresh-expiration-ms:86400000}")
+    private int jwtRefreshExpirationMs;
+
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
@@ -31,9 +38,24 @@ public class JwtProvider implements JwtProviderPort {
     @Override
     public String generateToken(Usuario usuario) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", usuario.getRoles().stream()
+        
+        Set<String> roles = usuario.getRoles().stream()
                 .map(rol -> rol.getNombre().toUpperCase())
-                .collect(Collectors.toList()));
+                .collect(Collectors.toSet());
+        
+        Set<String> permisos = new HashSet<>();
+        if (usuario.getRoles() != null) {
+            for (Rol rol : usuario.getRoles()) {
+                if (rol.getPermisos() != null) {
+                    for (Permiso permiso : rol.getPermisos()) {
+                        permisos.add(permiso.getNombre());
+                    }
+                }
+            }
+        }
+
+        claims.put("roles", roles);
+        claims.put("permissions", permisos);
         claims.put("uid", usuario.getId().toString());
         claims.put("activo", usuario.isActivo());
         claims.put("bloqueado", usuario.isBloqueado());
@@ -47,6 +69,20 @@ public class JwtProvider implements JwtProviderPort {
 
         return Jwts.builder()
                 .claims(claims)
+                .subject(usuario.getCorreo())
+                .id(UUID.randomUUID().toString()) // jti
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    @Override
+    public String generateRefreshToken(Usuario usuario) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtRefreshExpirationMs);
+
+        return Jwts.builder()
                 .subject(usuario.getCorreo())
                 .id(UUID.randomUUID().toString()) // jti
                 .issuedAt(now)

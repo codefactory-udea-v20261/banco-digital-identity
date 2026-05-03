@@ -3,6 +3,7 @@ package com.udea.bancodigital.auth.application.usecase;
 import com.udea.bancodigital.auth.application.dto.LoginRequestDto;
 import com.udea.bancodigital.auth.application.dto.LoginResponseDto;
 import com.udea.bancodigital.auth.application.dto.LogoutRequestDto;
+import com.udea.bancodigital.auth.application.dto.RefreshRequestDto;
 import com.udea.bancodigital.auth.domain.model.Rol;
 import com.udea.bancodigital.auth.domain.model.Usuario;
 import com.udea.bancodigital.auth.domain.port.in.AuthPort;
@@ -93,7 +94,39 @@ public class AuthUseCase implements AuthPort {
         }
 
         String token = jwtProviderPort.generateToken(usuario);
-        return new LoginResponseDto(token);
+        String refreshToken = jwtProviderPort.generateRefreshToken(usuario);
+        return new LoginResponseDto(token, refreshToken);
+    }
+
+    @Override
+    public LoginResponseDto refresh(RefreshRequestDto request) {
+        String refreshToken = request.getRefreshToken();
+        
+        if (!jwtProviderPort.isTokenValid(refreshToken)) {
+            throw new CredencialesInvalidasException();
+        }
+        
+        String jti = jwtProviderPort.extractJti(refreshToken);
+        if (tokenBlacklistPort.isRevoked(jti)) {
+            throw new CredencialesInvalidasException();
+        }
+        
+        String email = jwtProviderPort.extractUsername(refreshToken);
+        Usuario usuario = usuarioRepositoryPort.findByEmail(email)
+                .orElseThrow(CredencialesInvalidasException::new);
+                
+        if (!usuario.isActivo() || usuario.isBloqueado()) {
+            throw new CuentaBloqueadaException();
+        }
+        
+        // Revoke old refresh token
+        Instant expiration = jwtProviderPort.extractExpiration(refreshToken).toInstant();
+        tokenBlacklistPort.revoke(jti, usuario.getId(), expiration);
+        
+        String newAccessToken = jwtProviderPort.generateToken(usuario);
+        String newRefreshToken = jwtProviderPort.generateRefreshToken(usuario);
+        
+        return new LoginResponseDto(newAccessToken, newRefreshToken);
     }
 
     @Override

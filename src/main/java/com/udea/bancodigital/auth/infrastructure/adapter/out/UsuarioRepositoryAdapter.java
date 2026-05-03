@@ -1,5 +1,6 @@
 package com.udea.bancodigital.auth.infrastructure.adapter.out;
 
+import com.udea.bancodigital.auth.domain.model.Permiso;
 import com.udea.bancodigital.auth.domain.model.Rol;
 import com.udea.bancodigital.auth.domain.model.Usuario;
 import com.udea.bancodigital.auth.domain.port.out.UsuarioRepositoryPort;
@@ -99,6 +100,13 @@ public class UsuarioRepositoryAdapter implements UsuarioRepositoryPort {
                 .map(entity -> Rol.builder()
                         .id(entity.getId())
                         .nombre(entity.getNombre())
+                        .permisos(entity.getPermisos() != null ? entity.getPermisos().stream()
+                                .map(p -> Permiso.builder()
+                                        .id(p.getId())
+                                        .nombre(p.getNombre())
+                                        .descripcion(p.getDescripcion())
+                                        .build())
+                                .collect(Collectors.toSet()) : Set.of())
                         .build())
                 .collect(Collectors.toSet());
     }

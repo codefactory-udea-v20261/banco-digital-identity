@@ -2,7 +2,15 @@ spring:
   datasource:
     # Local development - Identity/Auth user
     username: auth_user
-    password: ${DB_PASSWORD:IdentityAuth456!}
+    password: ${IDENTITY_DB_PASSWORD:IdentityAuth456!}
+  
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+  
+  cloud:
+    vault:
+      enabled: false
+
   jpa:
     show-sql: true
 
