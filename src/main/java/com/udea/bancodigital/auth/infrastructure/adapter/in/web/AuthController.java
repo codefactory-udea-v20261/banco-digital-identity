@@ -194,7 +194,7 @@ public class AuthController {
         // Authenticate user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof AuthenticatedUser)) {
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         
         AuthenticatedUser principal = (AuthenticatedUser) authentication.getPrincipal();
