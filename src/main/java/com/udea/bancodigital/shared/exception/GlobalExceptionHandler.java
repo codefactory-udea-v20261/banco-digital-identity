@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Manejador global de excepciones.
@@ -44,7 +43,7 @@ public class GlobalExceptionHandler {
         List<String> details = ex.getBindingResult().getFieldErrors()
                 .stream()
                 .map(FieldError::getDefaultMessage)
-                .collect(Collectors.toList());
+                .toList();
         log.warn("[{}] ValidationException: {} — path={}", traceId, details, request.getRequestURI());
         ApiError error = ApiError.builder()
                 .errorCode("VALIDATION_ERROR")
