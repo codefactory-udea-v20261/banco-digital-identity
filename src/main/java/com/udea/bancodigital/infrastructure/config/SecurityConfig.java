@@ -25,7 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private static final String PERM_MANAGE_CLIENTS = PERM_MANAGE_CLIENTS;
+    private static final String PERM_MANAGE_CLIENTS = "PERM_MANAGE_CLIENTS";
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final Environment environment;
