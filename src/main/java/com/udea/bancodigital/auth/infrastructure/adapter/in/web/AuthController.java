@@ -107,33 +107,45 @@ public class AuthController {
             }
 
             if (!jwtProvider.isTokenValid(token)) {
-                return ResponseEntity.ok(TokenValidationResponseDto.builder().active(false).build());
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(TokenValidationResponseDto.builder()
+                                .active(false)
+                                .build());
             }
 
             Claims claims = jwtProvider.getClaims(token);
             List<String> roles = (List<String>) claims.get("roles");
             List<String> permissions = (List<String>) claims.get("permissions");
-            
-            // Map to standard ROLE_ prefix expected by Spring Security in other services
+
             List<String> authorities = new ArrayList<>();
+    
             if (roles != null) {
-                authorities.addAll(roles.stream()
-                        .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
-                        .toList());
+                authorities.addAll(
+                        roles.stream()
+                                .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
+                                .toList()
+                );
             }
+    
             if (permissions != null) {
                 authorities.addAll(permissions);
             }
 
-            return ResponseEntity.ok(TokenValidationResponseDto.builder()
-                    .active(true)
-                    .sub(claims.getSubject())
-                    .authorities(authorities)
-                    .clienteId((String) claims.get("clienteId"))
-                    .uid((String) claims.get("uid"))
-                    .build());
+            return ResponseEntity.ok(
+                    TokenValidationResponseDto.builder()
+                            .active(true)
+                            .sub(claims.getSubject())
+                            .authorities(authorities)
+                            .clienteId((String) claims.get("clienteId"))
+                            .uid((String) claims.get("uid"))
+                            .build()
+            );
+
         } catch (Exception e) {
-            return ResponseEntity.ok(TokenValidationResponseDto.builder().active(false).build());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(TokenValidationResponseDto.builder()
+                            .active(false)
+                            .build());
         }
     }
 
