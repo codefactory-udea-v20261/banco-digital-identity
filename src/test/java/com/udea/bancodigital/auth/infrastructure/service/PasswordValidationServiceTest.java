@@ -7,6 +7,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -50,57 +53,31 @@ class PasswordValidationServiceTest {
         assertThat(result.getStrengthScore()).isEqualTo(100);
     }
 
-    @Test
-    @DisplayName("Debe rechazar contraseña corta")
-    void validate_ShortPassword_ShouldFail() {
-        PasswordValidationResultDto result = service.validate("Te1!");
+    // ✅ TEST PARAMETRIZADO (reemplaza los 6 tests duplicados)
+    @ParameterizedTest(name = "{index} => password=''{0}'' debe fallar por {1}")
+    @MethodSource("invalidPasswordsProvider")
+    void validate_InvalidPasswords_ShouldFail(String password, String expectedError) {
+
+        PasswordValidationResultDto result = service.validate(password);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getErrors()).anyMatch(e -> e.contains("8 caracteres"));
+
+        if (expectedError != null) {
+            assertThat(result.getErrors())
+                    .anyMatch(e -> e.toLowerCase().contains(expectedError.toLowerCase()));
+        }
     }
 
-    @Test
-    @DisplayName("Debe rechazar contraseña vacía")
-    void validate_EmptyPassword_ShouldFail() {
-        PasswordValidationResultDto result = service.validate("");
-
-        assertThat(result.isValid()).isFalse();
-    }
-
-    @Test
-    @DisplayName("Debe rechazar contraseña sin mayúscula")
-    void validate_NoUppercase_ShouldFail() {
-        PasswordValidationResultDto result = service.validate("test1234!");
-
-        assertThat(result.isValid()).isFalse();
-        assertThat(result.getErrors()).anyMatch(e -> e.contains("mayúscula"));
-    }
-
-    @Test
-    @DisplayName("Debe rechazar contraseña sin minúscula")
-    void validate_NoLowercase_ShouldFail() {
-        PasswordValidationResultDto result = service.validate("TEST1234!");
-
-        assertThat(result.isValid()).isFalse();
-        assertThat(result.getErrors()).anyMatch(e -> e.contains("minúscula"));
-    }
-
-    @Test
-    @DisplayName("Debe rechazar contraseña sin número")
-    void validate_NoNumbers_ShouldFail() {
-        PasswordValidationResultDto result = service.validate("TestTest!");
-
-        assertThat(result.isValid()).isFalse();
-        assertThat(result.getErrors()).anyMatch(e -> e.contains("número"));
-    }
-
-    @Test
-    @DisplayName("Debe rechazar contraseña sin carácter especial")
-    void validate_NoSpecialChars_ShouldFail() {
-        PasswordValidationResultDto result = service.validate("Test1234");
-
-        assertThat(result.isValid()).isFalse();
-        assertThat(result.getErrors()).anyMatch(e -> e.contains("especial"));
+    // ✅ DATA PROVIDER
+    static Stream<Object[]> invalidPasswordsProvider() {
+        return Stream.of(
+                new Object[]{"Te1!", "8 caracteres"},
+                new Object[]{"", null},
+                new Object[]{"test1234!", "mayúscula"},
+                new Object[]{"TEST1234!", "minúscula"},
+                new Object[]{"TestTest!", "número"},
+                new Object[]{"Test1234", "especial"}
+        );
     }
 
     @Test
@@ -141,6 +118,7 @@ class PasswordValidationServiceTest {
     @DisplayName("Debe detectar reutilización de contraseña")
     void isPasswordReused_ShouldReturnTrueWhenSame() {
         UsuarioEntity entity = UsuarioEntity.builder().clave("encoded").build();
+
         when(passwordEncoder.matches("password", "encoded")).thenReturn(true);
 
         assertThat(service.isPasswordReused("password", Optional.of(entity))).isTrue();
