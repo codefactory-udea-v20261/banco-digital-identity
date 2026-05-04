@@ -50,9 +50,11 @@ public class AuthUseCase implements AuthPort {
                 && usuario.getIntentosFallidos() >= maxFailedAttempts) {
             usuario = resetFailedAttempts(usuario);
             usuarioRepositoryPort.save(usuario);
+        }
 
         if (!usuario.isActivo() || usuario.isBloqueado()) {
             throw new CuentaBloqueadaException();
+        }
 
         if (!passwordEncoderPort.matches(request.getClave(), usuario.getClave())) {
             int intentos = usuario.getIntentosFallidos() == null ? 0 : usuario.getIntentosFallidos();
@@ -75,8 +77,9 @@ public class AuthUseCase implements AuthPort {
             
             if (usuarioActualizado.isBloqueado()) {
                 throw new CuentaBloqueadaException();
-        }
+            }
             throw new CredencialesInvalidasException();
+        }
 
         boolean requiresMfa = requiresMfa(usuario);
 
@@ -161,4 +164,3 @@ public class AuthUseCase implements AuthPort {
                 .build();
     }
 }
-
