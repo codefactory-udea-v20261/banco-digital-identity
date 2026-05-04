@@ -14,7 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.util.Arrays;
 
 /**
  * Configuración de seguridad.
@@ -26,6 +25,8 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private static final String PERM_MANAGE_CLIENTS = PERM_MANAGE_CLIENTS;
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final Environment environment;
 
@@ -36,8 +37,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        boolean isDev = Arrays.asList(environment.getActiveProfiles()).contains("dev") ||
-                       Arrays.asList(environment.getActiveProfiles()).contains("local");
 
         http
             .csrf(AbstractHttpConfigurer::disable)
@@ -61,11 +60,11 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/internal/users/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/auth/me").authenticated()
                 // Solo asesor/admin puede registrar clientes
-                .requestMatchers(HttpMethod.POST, "/api/v1/clientes").hasAuthority("PERM_MANAGE_CLIENTS")
-                .requestMatchers(HttpMethod.GET, "/api/v1/clientes/*").hasAnyAuthority("PERM_READ_OWN_PROFILE", "PERM_MANAGE_CLIENTS")
-                .requestMatchers(HttpMethod.PATCH, "/api/v1/clientes/*").hasAuthority("PERM_MANAGE_CLIENTS")
+                .requestMatchers(HttpMethod.POST, "/api/v1/clientes").hasAuthority(PERM_MANAGE_CLIENTS)
+                .requestMatchers(HttpMethod.GET, "/api/v1/clientes/*").hasAnyAuthority("PERM_READ_OWN_PROFILE", PERM_MANAGE_CLIENTS)
+                .requestMatchers(HttpMethod.PATCH, "/api/v1/clientes/*").hasAuthority(PERM_MANAGE_CLIENTS)
                 .requestMatchers(HttpMethod.POST, "/api/v1/cuentas").hasAuthority("PERM_CREATE_ACCOUNTS")
-                .requestMatchers(HttpMethod.GET, "/api/v1/cuentas/*/saldo").hasAnyAuthority("PERM_READ_OWN_BALANCE", "PERM_MANAGE_CLIENTS")
+                .requestMatchers(HttpMethod.GET, "/api/v1/cuentas/*/saldo").hasAnyAuthority("PERM_READ_OWN_BALANCE", PERM_MANAGE_CLIENTS)
                 .requestMatchers(HttpMethod.GET, "/api/v1/reportes/saldo-total").hasAnyAuthority("PERM_GENERATE_OWN_REPORTS", "PERM_GENERATE_REPORTS")
                 // El resto debe estar autenticado
                 .anyRequest().authenticated()
