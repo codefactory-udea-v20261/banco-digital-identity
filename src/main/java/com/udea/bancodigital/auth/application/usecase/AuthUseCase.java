@@ -50,11 +50,9 @@ public class AuthUseCase implements AuthPort {
                 && usuario.getIntentosFallidos() >= maxFailedAttempts) {
             usuario = resetFailedAttempts(usuario);
             usuarioRepositoryPort.save(usuario);
-        }
 
         if (!usuario.isActivo() || usuario.isBloqueado()) {
             throw new CuentaBloqueadaException();
-        }
 
         if (!passwordEncoderPort.matches(request.getClave(), usuario.getClave())) {
             int intentos = usuario.getIntentosFallidos() == null ? 0 : usuario.getIntentosFallidos();
@@ -77,21 +75,18 @@ public class AuthUseCase implements AuthPort {
             
             if (usuarioActualizado.isBloqueado()) {
                 throw new CuentaBloqueadaException();
-            }
-            throw new CredencialesInvalidasException();
         }
+            throw new CredencialesInvalidasException();
 
         boolean requiresMfa = requiresMfa(usuario);
-        if (requiresMfa) {
-            if (request.getMfaCode() == null || request.getMfaCode().isBlank() || !request.getMfaCode().equals(usuario.getSecretoMfa())) {
-                throw new MfaRequeridoException();
-            }
+
+        if (requiresMfa && (request.getMfaCode() == null || request.getMfaCode().isBlank() || !request.getMfaCode().equals(usuario.getSecretoMfa()))) {
+            throw new MfaRequeridoException();
         }
 
         if (usuario.getIntentosFallidos() != null && usuario.getIntentosFallidos() > 0) {
             Usuario usuarioActualizado = resetFailedAttempts(usuario);
             usuarioRepositoryPort.save(usuarioActualizado);
-        }
 
         String token = jwtProviderPort.generateToken(usuario);
         String refreshToken = jwtProviderPort.generateRefreshToken(usuario);
