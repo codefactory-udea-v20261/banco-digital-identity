@@ -22,6 +22,9 @@ public class DataSeeder implements CommandLineRunner {
     private final RolJpaRepository rolJpaRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${app.seed.admin-password:Admin123!}")
+    private String adminPassword;
+
     @Override
     public void run(String... args) {
         if (usuarioJpaRepository.existsByCorreo("admin@bancodigital.com")) {
@@ -40,7 +43,7 @@ public class DataSeeder implements CommandLineRunner {
         UsuarioEntity admin = UsuarioEntity.builder()
                 .id(UUID.randomUUID())
                 .correo("admin@bancodigital.com")
-                .clave(passwordEncoder.encode("Admin123!"))
+                .clave(passwordEncoder.encode(adminPassword))
                 .roles(Collections.singleton(adminRol))
                 .activo(true)
                 .build();
