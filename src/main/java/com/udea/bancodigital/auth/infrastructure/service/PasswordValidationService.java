@@ -67,9 +67,9 @@ public class PasswordValidationService {
         }
 
         // Check numbers
-        if (requireNumbers && !Pattern.compile("[0-9]").matcher(password).find()) {
+        if (requireNumbers && !Pattern.compile("\\d").matcher(password).find()) {
             errors.add("La contraseña debe contener al menos un número");
-        } else if (Pattern.compile("[0-9]").matcher(password).find()) {
+        } else if (Pattern.compile("\\d").matcher(password).find()) {
             strengthScore += 20;
         }
 
