@@ -87,6 +87,7 @@ public class AuthUseCase implements AuthPort {
         if (usuario.getIntentosFallidos() != null && usuario.getIntentosFallidos() > 0) {
             Usuario usuarioActualizado = resetFailedAttempts(usuario);
             usuarioRepositoryPort.save(usuarioActualizado);
+        }
 
         String token = jwtProviderPort.generateToken(usuario);
         String refreshToken = jwtProviderPort.generateRefreshToken(usuario);
