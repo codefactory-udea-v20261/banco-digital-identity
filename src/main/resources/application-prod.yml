@@ -44,6 +44,8 @@ spring.zipkin:
   enabled: false
 
 management:
+  tracing:
+    enabled: false
   health:
     redis:
       enabled: false
