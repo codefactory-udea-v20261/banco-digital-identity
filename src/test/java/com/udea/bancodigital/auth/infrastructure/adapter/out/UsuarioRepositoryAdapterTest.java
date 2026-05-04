@@ -114,4 +114,48 @@ class UsuarioRepositoryAdapterTest {
                 .nombre(nombre)
                 .build();
     }
+
+    @Test
+    @DisplayName("Debe consultar por username usando findByEmail")
+    void findByUsername_ShouldReturnUsuario() {
+        UUID usuarioId = UUID.randomUUID();
+        UsuarioEntity entity = UsuarioEntity.builder()
+                .id(usuarioId)
+                .correo("test@test.com")
+                .clave("hash")
+                .activo(true)
+                .intentosFallidos((short) 0)
+                .build();
+        when(usuarioJpaRepository.findByCorreo("test@test.com")).thenReturn(Optional.of(entity));
+
+        Optional<Usuario> result = usuarioRepositoryAdapter.findByUsername("test@test.com");
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getCorreo()).isEqualTo("test@test.com");
+    }
+
+    @Test
+    @DisplayName("Debe retornar true si existe el username")
+    void existsByUsername_ShouldReturnTrue() {
+        when(usuarioJpaRepository.existsByCorreo("test@test.com")).thenReturn(true);
+        assertThat(usuarioRepositoryAdapter.existsByUsername("test@test.com")).isTrue();
+    }
+
+    @Test
+    @DisplayName("Debe lanzar excepción si el rol no existe al guardar")
+    void save_ShouldThrowExceptionWhenRoleNotFound() {
+        Usuario domain = Usuario.builder()
+                .id(UUID.randomUUID())
+                .correo("test@test.com")
+                .clave("hash")
+                .activo(true)
+                .roles(Set.of(rol((short) 99, "UNKNOWN")))
+                .build();
+
+        when(rolJpaRepository.findAllById(anyIterable())).thenReturn(List.of());
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> usuarioRepositoryAdapter.save(domain))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Uno o mas roles no existen");
+    }
 }
