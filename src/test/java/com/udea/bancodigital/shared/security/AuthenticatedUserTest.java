@@ -21,7 +21,7 @@ class AuthenticatedUserTest {
         AuthenticatedUser u1 = new AuthenticatedUser(id, "user", null);
         AuthenticatedUser u2 = new AuthenticatedUser(id, "user", null);
         assertThat(u1).isEqualTo(u2);
-        assertThat(u1.hashCode()).isEqualTo(u2.hashCode());
+        assertThat(u1).hasSameHashCodeAs(u2);
         assertThat(u1.toString()).contains("user");
     }
 }
