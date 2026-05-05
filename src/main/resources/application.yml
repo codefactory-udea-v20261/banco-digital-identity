@@ -36,18 +36,7 @@ spring:
       write-dates-as-timestamps: false
     default-property-inclusion: non_null
 
-# Eureka Service Discovery
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: ${EUREKA_URL:http://eureka-server:8761/eureka/}
-    registerWithEureka: true
-    fetchRegistry: true
-  instance:
-    instanceId: ${spring.application.name}:${server.port}
-    preferIpAddress: true
-    leaseRenewalIntervalInSeconds: 30
-    leaseExpirationDurationInSeconds: 90
+
 
 # Distributed Tracing
 spring.zipkin:
@@ -73,9 +62,9 @@ management:
   endpoint:
     health:
       show-details: when_authorized
-  metrics:
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: true
 
 springdoc:

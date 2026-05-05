@@ -21,12 +21,7 @@ spring:
   flyway:
     enabled: true
 
-# Disable Eureka for Cloud Run
-eureka:
-  client:
-    enabled: false
-    registerWithEureka: false
-    fetchRegistry: false
+
 
 # Disable Zipkin
 spring.zipkin:
