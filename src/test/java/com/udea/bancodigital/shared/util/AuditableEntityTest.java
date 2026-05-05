@@ -174,8 +174,11 @@ class AuditableEntityTest {
         }
     }
 
+    /**
+     * Clase concreta mínima para poder instanciar la clase abstracta
+     * AuditableEntity.
+     * No tiene anotaciones JPA para evitar dependencias del contexto de Spring.
+     */
     static class TestAuditableEntity extends AuditableEntity {
-        // Clase concreta para probar la clase abstracta
     }
-
 }
