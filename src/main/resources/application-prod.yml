@@ -28,17 +28,6 @@ eureka:
     registerWithEureka: false
     fetchRegistry: false
 
-# Disable Kafka consumers for Cloud Run
-spring.kafka:
-  bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-  listener:
-    auto-startup: false
-
-spring.cloud.stream:
-  kafka:
-    binder:
-      auto-startup: false
-
 # Disable Zipkin
 spring.zipkin:
   enabled: false
