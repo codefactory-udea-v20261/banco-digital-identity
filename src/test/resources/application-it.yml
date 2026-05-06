@@ -4,8 +4,6 @@ spring:
     username: test
     password: test
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
-  kafka:
-    bootstrap-servers: ${spring.kafka.bootstrap-servers:localhost:9092}
   flyway:
     enabled: false
   jpa:

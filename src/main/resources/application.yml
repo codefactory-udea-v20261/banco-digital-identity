@@ -36,39 +36,7 @@ spring:
       write-dates-as-timestamps: false
     default-property-inclusion: non_null
 
-# Eureka Service Discovery
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: ${EUREKA_URL:http://eureka-server:8761/eureka/}
-    registerWithEureka: true
-    fetchRegistry: true
-  instance:
-    instanceId: ${spring.application.name}:${server.port}
-    preferIpAddress: true
-    leaseRenewalIntervalInSeconds: 30
-    leaseExpirationDurationInSeconds: 90
 
-# Kafka Configuration
-spring.kafka:
-  bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
-  consumer:
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
-    group-id: ${spring.application.name}
-    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-    auto-offset-reset: earliest
-    enable-auto-commit: true
-    properties:
-      spring.json.trusted.packages: com.udea.bancodigital
-
-# Spring Cloud Stream Kafka Binder
-spring.cloud.stream:
-  kafka:
-    binder:
-      brokers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
-      zkNodes: zookeeper:2181
-      defaultBrokerPort: 9092
 
 # Distributed Tracing
 spring.zipkin:
@@ -94,9 +62,9 @@ management:
   endpoint:
     health:
       show-details: when_authorized
-  metrics:
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: true
 
 springdoc:

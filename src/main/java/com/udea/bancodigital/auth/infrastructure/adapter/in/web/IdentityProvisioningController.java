@@ -76,7 +76,7 @@ public class IdentityProvisioningController {
     public ResponseEntity<Map<String, Object>> existsByEmail(
             @RequestParam String email) {
         Map<String, Object> response = new HashMap<>();
-        response.put("exists", false);
+        response.put("exists", provisionClientAccessPort.existsByEmail(email));
         return ResponseEntity.ok(response);
     }
 }
