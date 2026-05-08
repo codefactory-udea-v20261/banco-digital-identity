@@ -124,9 +124,6 @@
       <artifactId>micrometer-registry-prometheus</artifactId>
     </dependency>
 
-    <!-- ── Service Discovery (Eureka) ──────────────────── -->
-
-
     <!-- ── Resilience & Fault Tolerance ──────────────────── -->
     <dependency>
       <groupId>org.springframework.cloud</groupId>
