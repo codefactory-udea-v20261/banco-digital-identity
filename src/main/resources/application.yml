@@ -36,6 +36,10 @@ spring:
       write-dates-as-timestamps: false
     default-property-inclusion: non_null
 
+# Kafka Configuration
+spring.kafka:
+  bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}}
+
 
 
 # Distributed Tracing

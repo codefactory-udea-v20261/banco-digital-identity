@@ -39,12 +39,14 @@ public class SecurityConfig {
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Swagger / OpenAPI - only in dev/local profiles
+                // Swagger / OpenAPI
                 .requestMatchers(
                     "/swagger-ui/**",
                     "/swagger-ui.html",
+                    "/v3/api-docs/**",
+                    "/v3/api-docs",
                     "/api-docs/**",
-                    "/api-docs.yaml"
+                    "/api-docs"
                 ).permitAll()
                 // Actuator (health checks para Docker/Render)
                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
