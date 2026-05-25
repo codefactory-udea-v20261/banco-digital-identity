@@ -4,6 +4,7 @@ import com.udea.bancodigital.auth.application.dto.ChangePasswordRequestDto;
 import com.udea.bancodigital.auth.application.dto.ChangePasswordResponseDto;
 import com.udea.bancodigital.auth.infrastructure.entity.UsuarioEntity;
 import com.udea.bancodigital.auth.infrastructure.repository.UsuarioJpaRepository;
+import com.udea.bancodigital.auth.infrastructure.service.PasswordHistoryService;
 import com.udea.bancodigital.auth.infrastructure.service.PasswordValidationService;
 import com.udea.bancodigital.auth.application.dto.PasswordValidationResultDto;
 import com.udea.bancodigital.shared.exception.InvalidPasswordException;
@@ -34,6 +35,9 @@ class ChangePasswordUseCaseTest {
     @Mock
     private PasswordValidationService passwordValidationService;
 
+    @Mock
+    private PasswordHistoryService passwordHistoryService;
+
     @InjectMocks
     private ChangePasswordUseCase useCase;
 
@@ -53,11 +57,14 @@ class ChangePasswordUseCaseTest {
         when(passwordValidationService.validate("New1234!")).thenReturn(
                 PasswordValidationResultDto.builder().valid(true).errors(List.of()).strengthScore(100).build());
         when(passwordValidationService.isPasswordReused("New1234!", Optional.of(user))).thenReturn(false);
+        when(passwordHistoryService.isSameAsCurrent("New1234!", user)).thenReturn(false);
+        when(passwordHistoryService.isInHistory("New1234!", userId)).thenReturn(false);
         when(passwordValidationService.encodePassword("New1234!")).thenReturn("newEncoded");
 
         ChangePasswordResponseDto result = useCase.changePassword(userId, buildRequest("old", "New1234!", "New1234!"));
 
         assertThat(result.isSuccess()).isTrue();
+        verify(passwordHistoryService).recordPreviousPassword(userId, "encoded");
         verify(usuarioRepository).save(user);
     }
 
@@ -125,5 +132,40 @@ class ChangePasswordUseCaseTest {
 
         assertThatThrownBy(() -> useCase.changePassword(userId, buildRequest("old", "Same1234!", "Same1234!")))
                 .isInstanceOf(PasswordChangeException.class);
+    }
+
+    @Test
+    @DisplayName("Debe fallar si nueva contraseña es igual a la actual (mensaje BDD)")
+    void changePassword_SameAsCurrentMessage() {
+        UUID userId = UUID.randomUUID();
+        UsuarioEntity user = UsuarioEntity.builder().id(userId).clave("encoded").build();
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(passwordValidationService.validateOldPassword("old", "encoded")).thenReturn(true);
+        when(passwordValidationService.passwordsMatch("Same1234!", "Same1234!")).thenReturn(true);
+        when(passwordValidationService.validate("Same1234!")).thenReturn(
+                PasswordValidationResultDto.builder().valid(true).errors(List.of()).strengthScore(100).build());
+        when(passwordHistoryService.isSameAsCurrent("Same1234!", user)).thenReturn(true);
+
+        assertThatThrownBy(() -> useCase.changePassword(userId, buildRequest("old", "Same1234!", "Same1234!")))
+                .isInstanceOf(PasswordChangeException.class)
+                .hasMessageContaining("no puede ser igual a la actual");
+    }
+
+    @Test
+    @DisplayName("Debe fallar si contraseña está en el historial de las últimas 3")
+    void changePassword_PasswordInHistory() {
+        UUID userId = UUID.randomUUID();
+        UsuarioEntity user = UsuarioEntity.builder().id(userId).clave("encoded").build();
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(passwordValidationService.validateOldPassword("old", "encoded")).thenReturn(true);
+        when(passwordValidationService.passwordsMatch("OldUsed123!", "OldUsed123!")).thenReturn(true);
+        when(passwordValidationService.validate("OldUsed123!")).thenReturn(
+                PasswordValidationResultDto.builder().valid(true).errors(List.of()).strengthScore(100).build());
+        when(passwordHistoryService.isSameAsCurrent("OldUsed123!", user)).thenReturn(false);
+        when(passwordHistoryService.isInHistory("OldUsed123!", userId)).thenReturn(true);
+
+        assertThatThrownBy(() -> useCase.changePassword(userId, buildRequest("old", "OldUsed123!", "OldUsed123!")))
+                .isInstanceOf(PasswordChangeException.class)
+                .hasMessageContaining("ya fue utilizada");
     }
 }

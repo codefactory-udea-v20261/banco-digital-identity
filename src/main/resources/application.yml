@@ -95,6 +95,7 @@ app:
       require-numbers: ${PASSWORD_REQUIRE_NUMBERS:true}
       require-special-chars: ${PASSWORD_REQUIRE_SPECIAL_CHARS:true}
       prevent-reuse: ${PASSWORD_PREVENT_REUSE:true}
+      password-history-count: ${PASSWORD_HISTORY_COUNT:3}
     account-lockout:
       max-attempts: ${ACCOUNT_LOCKOUT_MAX_ATTEMPTS:5}
       lockout-duration-minutes: ${ACCOUNT_LOCKOUT_DURATION_MINUTES:30}
@@ -131,6 +132,7 @@ app:
       require-numbers: ${password_require_numbers:true}
       require-special-chars: ${password_require_special_chars:true}
       prevent-reuse: ${password_prevent_reuse:true}
+      password-history-count: ${password_history_count:3}
     account-lockout:
       max-attempts: ${account_lockout_max_attempts:5}
       lockout-duration-minutes: ${account_lockout_duration_minutes:30}
