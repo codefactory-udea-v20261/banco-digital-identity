@@ -49,7 +49,7 @@ public class SecurityConfig {
                     "/api-docs"
                 ).permitAll()
                 // Actuator (health checks para Docker/Render)
-                .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/actuator/health", "/actuator/info", "/actuator/prometheus").permitAll()
                 // Endpoints públicos
                 .requestMatchers("/api/v1/auth/login").permitAll()
                 .requestMatchers("/api/v1/auth/validate-token").permitAll()
