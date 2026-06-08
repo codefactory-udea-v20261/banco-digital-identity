@@ -28,6 +28,7 @@
     <resilience4j.version>2.1.0</resilience4j.version>
     <sonar.organization>codefactory-udea-v20261</sonar.organization>
     <pact.version>4.6.6</pact.version>
+    <cucumber.version>7.18.0</cucumber.version>
   </properties>
 
   <dependencyManagement>
@@ -42,10 +43,9 @@
     </dependencies>
   </dependencyManagement>
 
-
-
   <dependencies>
-    <!-- ── Core ─────────────────────────────── -->
+
+    <!-- ── Core ──────────────────────────────────────────────────────────── -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
@@ -66,18 +66,30 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
-    <!-- ── Database ──────────────────────────── -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-hateoas</artifactId>
+    </dependency>
+
+    <!-- ── Database ──────────────────────────────────────────────────────── -->
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <scope>runtime</scope>
     </dependency>
-    <!-- ── Migrations ───────────────────────── -->
+    <dependency>
+      <groupId>com.google.cloud.sql</groupId>
+      <artifactId>postgres-socket-factory</artifactId>
+      <version>1.15.1</version>
+    </dependency>
+
+    <!-- ── Migrations ────────────────────────────────────────────────────── -->
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
     </dependency>
-    <!-- ── Code generation ───────────────────── -->
+
+    <!-- ── Code generation ───────────────────────────────────────────────── -->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
@@ -94,13 +106,15 @@
       <version>${mapstruct.version}</version>
       <scope>provided</scope>
     </dependency>
-    <!-- ── API Docs ──────────────────────────── -->
+
+    <!-- ── API Docs ───────────────────────────────────────────────────────── -->
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
       <version>2.4.0</version>
     </dependency>
-    <!-- ── JWT Validation (for calling Identity Service) ─── -->
+
+    <!-- ── JWT ───────────────────────────────────────────────────────────── -->
     <dependency>
       <groupId>io.jsonwebtoken</groupId>
       <artifactId>jjwt-api</artifactId>
@@ -118,13 +132,14 @@
       <version>0.12.5</version>
       <scope>runtime</scope>
     </dependency>
-    <!-- ── Observability ──────────── -->
+
+    <!-- ── Observability ─────────────────────────────────────────────────── -->
     <dependency>
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-registry-prometheus</artifactId>
     </dependency>
 
-    <!-- ── Resilience & Fault Tolerance ──────────────────── -->
+    <!-- ── Resilience ────────────────────────────────────────────────────── -->
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
@@ -150,21 +165,20 @@
       <version>${resilience4j.version}</version>
     </dependency>
 
-    <!-- ── Secrets Management (Vault) ──────────────────── -->
+    <!-- ── Secrets Management ────────────────────────────────────────────── -->
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-vault-config</artifactId>
     </dependency>
-    <!-- ── Distributed Tracing (Micrometer Tracing) ──────────────────── -->
-    <!-- Note: Spring Cloud Sleuth 3.x migrated to micrometer-tracing -->
-    <!-- For now, using Actuator + Prometheus for metrics collection -->
-    <!-- ── Structured Logging (JSON) ──────────────────── -->
+
+    <!-- ── Structured Logging ────────────────────────────────────────────── -->
     <dependency>
       <groupId>net.logstash.logback</groupId>
       <artifactId>logstash-logback-encoder</artifactId>
       <version>7.4</version>
     </dependency>
-    <!-- ── Testing ───────────────────────────── -->
+
+    <!-- ── Testing ───────────────────────────────────────────────────────── -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
@@ -187,34 +201,51 @@
       <version>${testcontainers.version}</version>
       <scope>test</scope>
     </dependency>
-      <!-- ── Pact Contract Testing ──────────────────── -->
-      <dependency>
-        <groupId>au.com.dius.pact.consumer</groupId>
-        <artifactId>junit5</artifactId>
-        <version>${pact.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>au.com.dius.pact.provider</groupId>
-        <artifactId>junit5</artifactId>
-        <version>${pact.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <!-- ── HATEOAS ──────────────────────────────────────────── -->
+
+    <!-- ── Pact Contract Testing ─────────────────────────────────────────── -->
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-hateoas</artifactId>
+      <groupId>au.com.dius.pact.consumer</groupId>
+      <artifactId>junit5</artifactId>
+      <version>${pact.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>au.com.dius.pact.provider</groupId>
+      <artifactId>junit5</artifactId>
+      <version>${pact.version}</version>
+      <scope>test</scope>
     </dependency>
 
+    <!-- ── Cucumber ──────────────────────────────────────────────────────── -->
     <dependency>
-      <groupId>com.google.cloud.sql</groupId>
-      <artifactId>postgres-socket-factory</artifactId>
-      <version>1.15.1</version>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-junit-platform-engine</artifactId>
+      <version>${cucumber.version}</version>
+      <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-suite</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-java</artifactId>
+      <version>${cucumber.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-picocontainer</artifactId>
+      <version>${cucumber.version}</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>
     <plugins>
+
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
@@ -228,6 +259,7 @@
           </excludes>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
@@ -250,31 +282,50 @@
                   <element>PACKAGE</element>
                   <limits>
                     <limit>
-                        <counter>LINE</counter>
-                        <value>COVEREDRATIO</value>
-                        <minimum>0.30</minimum>
+                      <counter>LINE</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0.30</minimum>
                     </limit>
                     <limit>
-                        <counter>BRANCH</counter>
-                        <value>COVEREDRATIO</value>
-                        <minimum>0.00</minimum>
-                    </limit>                  </limits>
+                      <counter>BRANCH</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0.00</minimum>
+                    </limit>
+                  </limits>
                 </rule>
               </rules>
             </configuration>
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <includes>
+            <include>**/*Test.java</include>
+            <include>**/CucumberRunnerTest.java</include>
+          </includes>
           <excludes>
             <exclude>**/*IT.java</exclude>
             <exclude>**/*IntegrationTest.java</exclude>
           </excludes>
+          <environmentVariables>
+            <DOCKER_API_VERSION>1.40</DOCKER_API_VERSION>
+          </environmentVariables>
+          <systemPropertyVariables>
+            <docker.api.version>1.40</docker.api.version>
+          </systemPropertyVariables>
+          <properties>
+            <configurationParameters>
+              junit.platform.output.capture.stdout=true
+              junit.platform.output.capture.stderr=true
+            </configurationParameters>
+          </properties>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -300,6 +351,7 @@
           </annotationProcessorPaths>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
@@ -313,6 +365,13 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>org.sonarsource.scanner.maven</groupId>
+        <artifactId>sonar-maven-plugin</artifactId>
+        <version>3.10.0.2594</version>
+      </plugin>
+
     </plugins>
   </build>
 
